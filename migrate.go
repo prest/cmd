@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -28,8 +29,16 @@ var migrateCmd = &cobra.Command{
 }
 
 func driverURL() string {
-	u := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s", config.PrestConf.PGUser, config.PrestConf.PGPass, config.PrestConf.PGHost, config.PrestConf.PGPort, config.PrestConf.PGDatabase, config.PrestConf.SSLMode)
-	return url.PathEscape(u)
+	// the replace is to maintain compatibility with Go 1.6 https://github.com/golang/go/issues/4013
+	// TODO: use url.PathEscape() when stop supporting Go 1.6
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		strings.Replace(url.QueryEscape(config.PrestConf.PGUser), "+", "%20", -1),
+		strings.Replace(url.QueryEscape(config.PrestConf.PGPass), "+", "%20", -1),
+		strings.Replace(url.QueryEscape(config.PrestConf.PGHost), "+", "%20", -1),
+		config.PrestConf.PGPort,
+		strings.Replace(url.QueryEscape(config.PrestConf.PGDatabase), "+", "%20", -1),
+		url.QueryEscape(config.PrestConf.SSLMode))
+
 }
 
 func writePipe(pipe chan interface{}) (ok bool) {
