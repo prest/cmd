@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"time"
 
@@ -14,8 +15,10 @@ import (
 	"gopkg.in/mattes/migrate.v1/migrate/direction"
 )
 
-var url string
-var path string
+var (
+	urlConn string
+	path    string
+)
 
 // migrateCmd represents the migrate command
 var migrateCmd = &cobra.Command{
@@ -25,7 +28,8 @@ var migrateCmd = &cobra.Command{
 }
 
 func driverURL() string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s", config.PrestConf.PGUser, config.PrestConf.PGPass, config.PrestConf.PGHost, config.PrestConf.PGPort, config.PrestConf.PGDatabase, config.PrestConf.SSLMode)
+	u := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s", config.PrestConf.PGUser, config.PrestConf.PGPass, config.PrestConf.PGHost, config.PrestConf.PGPort, config.PrestConf.PGDatabase, config.PrestConf.SSLMode)
+	return url.PathEscape(u)
 }
 
 func writePipe(pipe chan interface{}) (ok bool) {
