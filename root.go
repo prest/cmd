@@ -53,16 +53,16 @@ func Execute() {
 func MakeHandler() http.Handler {
 	n := middlewares.GetApp()
 	r := router.Get()
-	r.HandleFunc("/databases", controllers.GetDatabases).Methods("GET")
-	r.HandleFunc("/schemas", controllers.GetSchemas).Methods("GET")
-	r.HandleFunc("/tables", controllers.GetTables).Methods("GET")
-	r.HandleFunc("/_QUERIES/{queriesLocation}/{script}", controllers.ExecuteFromScripts)
-	r.HandleFunc("/{database}/{schema}", controllers.GetTablesByDatabaseAndSchema).Methods("GET")
+	r.Handle("/databases", controllers.GenericHttpHandler(controllers.GetDatabases)).Methods("GET")
+	r.Handle("/schemas", controllers.GenericHttpHandler(controllers.GetSchemas)).Methods("GET")
+	r.Handle("/tables", controllers.GenericHttpHandler(controllers.GetTables)).Methods("GET")
+	r.Handle("/_QUERIES/{queriesLocation}/{script}", controllers.GenericHttpHandler(controllers.ExecuteFromScripts))
+	r.Handle("/{database}/{schema}", controllers.GenericHttpHandler(controllers.GetTablesByDatabaseAndSchema)).Methods("GET")
 	crudRoutes := mux.NewRouter().PathPrefix("/").Subrouter().StrictSlash(true)
-	crudRoutes.HandleFunc("/{database}/{schema}/{table}", controllers.SelectFromTables).Methods("GET")
-	crudRoutes.HandleFunc("/{database}/{schema}/{table}", controllers.InsertInTables).Methods("POST")
-	crudRoutes.HandleFunc("/{database}/{schema}/{table}", controllers.DeleteFromTable).Methods("DELETE")
-	crudRoutes.HandleFunc("/{database}/{schema}/{table}", controllers.UpdateTable).Methods("PUT", "PATCH")
+	crudRoutes.Handle("/{database}/{schema}/{table}", controllers.GenericHttpHandler(controllers.SelectFromTables)).Methods("GET")
+	crudRoutes.Handle("/{database}/{schema}/{table}", controllers.GenericHttpHandler(controllers.InsertInTables)).Methods("POST")
+	crudRoutes.Handle("/{database}/{schema}/{table}", controllers.GenericHttpHandler(controllers.DeleteFromTable)).Methods("DELETE")
+	crudRoutes.Handle("/{database}/{schema}/{table}", controllers.GenericHttpHandler(controllers.UpdateTable)).Methods("PUT", "PATCH")
 	r.PathPrefix("/").Handler(negroni.New(
 		middlewares.AccessControl(),
 		negroni.Wrap(crudRoutes),
