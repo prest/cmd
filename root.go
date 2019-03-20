@@ -26,7 +26,7 @@ var RootCmd = &cobra.Command{
 	Long:  `Serve a RESTful API from any PostgreSQL database, start HTTP server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if config.PrestConf.Adapter == nil {
-			log.Warning("adapter is not set. Using the default (postgres)")
+			nlog.Warningln("adapter is not set. Using the default (postgres)")
 			postgres.Load()
 		}
 		startServer()
