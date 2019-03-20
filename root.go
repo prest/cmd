@@ -25,7 +25,9 @@ var RootCmd = &cobra.Command{
 	Short: "Serve a RESTful API from any PostgreSQL database",
 	Long:  `Serve a RESTful API from any PostgreSQL database, start HTTP server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		postgres.Load()
+		if config.PrestConf.Adapter == nil {
+			postgres.Load()
+		}
 		startServer()
 	},
 }
